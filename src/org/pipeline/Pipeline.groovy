@@ -66,9 +66,10 @@ def helmTest(Map args) {
     sh "helm test ${args.name} --cleanup"
 }
 
+// Set Git Environment Variables
 def gitEnvVars() {
     // create git envvars
-    println "Setting envvars to tag container"
+    println "Setting Git Environment Variables"
 
     sh 'git rev-parse HEAD > git_commit_id.txt'
     try {
@@ -77,7 +78,7 @@ def gitEnvVars() {
     } catch (e) {
         error "${e}"
     }
-    println "env.GIT_COMMIT_ID ==> ${env.GIT_COMMIT_ID}"
+    println "env.GIT_COMMIT_ID => ${env.GIT_COMMIT_ID}"
 
     sh 'git config --get remote.origin.url> git_remote_origin_url.txt'
     try {
@@ -85,13 +86,13 @@ def gitEnvVars() {
     } catch (e) {
         error "${e}"
     }
-    println "env.GIT_REMOTE_URL ==> ${env.GIT_REMOTE_URL}"
+    println "env.GIT_REMOTE_URL => ${env.GIT_REMOTE_URL}"
 }
 
-
+// Build And Publish Docker Container
 def containerBuildPub(Map args) {
 
-    println "Running Docker build/publish: ${args.host}/${args.acct}/${args.repo}:${args.tags}"
+    println "Running Docker Build/Publish: ${args.host}/${args.acct}/${args.repo}:${args.tags}"
 
     docker.withRegistry("https://${args.host}", "${args.auth_id}") {
 
@@ -106,26 +107,27 @@ def containerBuildPub(Map args) {
     }
 }
 
+// Get List Of Tags For A Docker Container
 def getContainerTags(config, Map tags = [:]) {
 
-    println "getting list of tags for container"
+    println "Getting List Of Tags For Container"
     def String commit_tag
     def String version_tag
 
     try {
-        // if PR branch tag with only branch name
+        // If PR Branch Tag Only Has A Branch Name
         if (env.BRANCH_NAME.contains('PR')) {
             commit_tag = env.BRANCH_NAME
             tags << ['commit': commit_tag]
             return tags
         }
     } catch (Exception e) {
-        println "WARNING: commit unavailable from env. ${e}"
+        println "WARNING: Commit Unavailable From Environment. ${e}"
     }
 
-    // commit tag
+    // Set Commit Tag
     try {
-        // if branch available, use as prefix, otherwise only commit hash
+        // If Branch Available, Use As Prefix, Otherwise Only Commit Hash
         if (env.BRANCH_NAME) {
             commit_tag = env.BRANCH_NAME + '-' + env.GIT_COMMIT_ID.substring(0, 7)
         } else {
@@ -133,33 +135,34 @@ def getContainerTags(config, Map tags = [:]) {
         }
         tags << ['commit': commit_tag]
     } catch (Exception e) {
-        println "WARNING: commit unavailable from env. ${e}"
+        println "WARNING: Commit Unavailable From Environment. ${e}"
     }
 
-    // master tag
+    // Set Master Tag
     try {
         if (env.BRANCH_NAME == 'master') {
             tags << ['master': 'latest']
         }
     } catch (Exception e) {
-        println "WARNING: branch unavailable from env. ${e}"
+        println "WARNING: Branch Unavailable From Environment. ${e}"
     }
 
-    // build tag only if none of the above are available
+    // Only Set Build Tag If None Of The Above Are Available
     if (!tags) {
         try {
             tags << ['build': env.BUILD_TAG]
         } catch (Exception e) {
-            println "WARNING: build tag unavailable from config.project. ${e}"
+            println "WARNING: Build Tag Unavailable From config.project. ${e}"
         }
     }
 
     return tags
 }
 
+// Set Container Registry Account To Use
 def getContainerRepoAcct(config) {
 
-    println "setting container registry creds according to Jenkinsfile.json"
+    println "Setting Container Registry Credentials According To Branch"
     def String acct
 
     if (env.BRANCH_NAME == 'master') {
@@ -172,8 +175,9 @@ def getContainerRepoAcct(config) {
 }
 
 @NonCPS
+// Jenkins And Workflow Restriction Force This Function Instead Of map.values()
+// see: https://issues.jenkins-ci.org/browse/JENKINS-27421
 def getMapValues(Map map=[:]) {
-    // jenkins and workflow restriction force this function instead of map.values(): https://issues.jenkins-ci.org/browse/JENKINS-27421
     def entries = []
     def map_values = []
 
