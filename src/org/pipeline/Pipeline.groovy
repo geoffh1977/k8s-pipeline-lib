@@ -98,7 +98,9 @@ def containerBuildPub(Map args) {
 
         // def img = docker.build("${args.acct}/${args.repo}", args.dockerfile)
         def img = docker.image("${args.acct}/${args.repo}")
-        sh "docker build --build-arg VCS_REF=${env.GIT_SHA} --build-arg BUILD_DATE=`date -u +'%Y-%m-%dT%H:%M:%SZ'` -t ${args.acct}/${args.repo} ${args.dockerfile}"
+        sh "docker build --build-arg VCS_REF=${env.GIT_SHA} --build-arg BUILD_DATE=`date -u +'%Y-%m-%dT%H:%M:%SZ'` -t ${args.acct}/${args.repo} ${args.dockerfile} > docker-build-log.txt"
+        def build_output=readFile('docker-build-log.txt').trim()
+        println "Docker Build Output => ${build_output}"
         for (int i = 0; i < args.tags.size(); i++) {
             img.push(args.tags.get(i))
         }
