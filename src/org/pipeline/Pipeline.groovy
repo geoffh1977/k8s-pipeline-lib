@@ -109,9 +109,9 @@ def containerBuildPub(Map args) {
         def img = docker.image("${args.acct}/${args.repo}")
 
         for (int i = 0; i < args.tags.size(); i++) {
-            //img.push(args.tags.get(i))
-            sh "docker tag ${args.acct}/${args.repo} ${args.host}/${args.acct}/${args.repo}:${args.tags.get(i)}"
-            sh "docker push ${args.host}/${args.acct}/${args.repo}:${args.tags.get(i)}"
+            img.push(args.tags.get(i))
+            // sh "docker tag ${args.acct}/${args.repo} ${args.host}/${args.acct}/${args.repo}:${args.tags.get(i)}"
+            // sh "docker push ${args.host}/${args.acct}/${args.repo}:${args.tags.get(i)}"
         }
 
         return img.id
