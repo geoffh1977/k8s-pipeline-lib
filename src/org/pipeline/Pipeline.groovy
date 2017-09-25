@@ -73,7 +73,9 @@ def gitEnvVars() {
 
     // sh 'git rev-parse HEAD > git_commit_id.txt'
     env.GIT_COMMIT_ID = sh(returnStdout: true, script: "git log -n 1 --pretty=format:'%H'").trim()
+    env.GIT_REMOTE_URL = sh(returnStdout: true, script: "git config --get remote.origin.url").trim()
     env.GIT_SHA = env.GIT_COMMIT_ID.substring(0, 7)
+
     // try {
     //     // env.GIT_COMMIT_ID = readFile('git_commit_id.txt').trim()
     //     // env.GIT_SHA = env.GIT_COMMIT_ID.substring(0, 7)
@@ -82,15 +84,17 @@ def gitEnvVars() {
     //     error "${e}"
     // }
     println "env.GIT_COMMIT_ID => ${env.GIT_COMMIT_ID}"
-
-    sh 'git config --get remote.origin.url> git_remote_origin_url.txt'
-
-    try {
-        env.GIT_REMOTE_URL = readFile('git_remote_origin_url.txt').trim()
-    } catch (e) {
-        error "${e}"
-    }
+    println "env.GIT_SHA => ${env.GIT_SHA}"
     println "env.GIT_REMOTE_URL => ${env.GIT_REMOTE_URL}"
+
+    // sh 'git config --get remote.origin.url> git_remote_origin_url.txt'
+    //
+    // try {
+    //     env.GIT_REMOTE_URL = readFile('git_remote_origin_url.txt').trim()
+    // } catch (e) {
+    //     error "${e}"
+    // }
+    // println "env.GIT_REMOTE_URL => ${env.GIT_REMOTE_URL}"
 }
 
 // Build And Publish Docker Container
@@ -100,11 +104,11 @@ def containerBuildPub(Map args) {
 
     docker.withRegistry("https://${args.host}", "${args.auth_id}") {
 
-        def img = docker.build("${args.acct}/${args.repo}", args.dockerfile)
-        // def img = docker.image("${args.acct}/${args.repo}")
-        // sh "docker build --build-arg VCS_REF=${env.GIT_SHA} --build-arg BUILD_DATE=`date -u +'%Y-%m-%dT%H:%M:%SZ'` -t ${args.acct}/${args.repo} ${args.dockerfile} > docker-build-log.txt"
-        // def build_output=readFile('docker-build-log.txt').trim()
-        // println "Docker Build Output => ${build_output}"
+        // def img = docker.build("${args.acct}/${args.repo}", args.dockerfile)
+        def img = docker.image("${args.acct}/${args.repo}")
+        sh "docker build --build-arg VCS_REF=${env.GIT_SHA} --build-arg BUILD_DATE=`date -u +'%Y-%m-%dT%H:%M:%SZ'` -t ${args.acct}/${args.repo} ${args.dockerfile} > docker-build-log.txt"
+        def build_output=readFile('docker-build-log.txt').trim()
+        println "Docker Build Output => ${build_output}"
         for (int i = 0; i < args.tags.size(); i++) {
             img.push(args.tags.get(i))
         }
