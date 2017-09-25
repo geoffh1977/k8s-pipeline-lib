@@ -71,13 +71,13 @@ def gitEnvVars() {
     // create git envvars
     println "Setting Git Environment Variables"
 
-    sh 'git rev-parse HEAD > git_commit_id.txt'
-    try {
-        env.GIT_COMMIT_ID = readFile('git_commit_id.txt').trim()
-        env.GIT_SHA = env.GIT_COMMIT_ID.substring(0, 7)
-    } catch (e) {
-        error "${e}"
-    }
+    // sh 'git rev-parse HEAD > git_commit_id.txt'
+    // try {
+    //     env.GIT_COMMIT_ID = readFile('git_commit_id.txt').trim()
+    //     env.GIT_SHA = env.GIT_COMMIT_ID.substring(0, 7)
+    // } catch (e) {
+    //     error "${e}"
+    // }
     println "env.GIT_COMMIT_ID => ${env.GIT_COMMIT_ID}"
 
     sh 'git config --get remote.origin.url> git_remote_origin_url.txt'
