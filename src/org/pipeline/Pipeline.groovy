@@ -76,13 +76,6 @@ def gitEnvVars() {
     // env.GIT_REMOTE_URL = sh(returnStdout: true, script: "git config --get remote.origin.url").trim()
     env.GIT_SHA = env.GIT_COMMIT_ID.substring(0, 7)
 
-    // try {
-    //     // env.GIT_COMMIT_ID = readFile('git_commit_id.txt').trim()
-    //     // env.GIT_SHA = env.GIT_COMMIT_ID.substring(0, 7)
-    //     env.GIT_COMMIT_ID = sh(returnStdout: true, script: "git log -n 1 --pretty=format:'%h'").trim()
-    // } catch (e) {
-    //     error "${e}"
-    // }
     println "env.GIT_COMMIT_ID => ${env.GIT_COMMIT_ID}"
     println "env.GIT_SHA => ${env.GIT_SHA}"
 
@@ -102,18 +95,13 @@ def containerBuildPub(Map args) {
     println "Running Docker Build/Publish: ${args.host}/${args.acct}/${args.repo}:${args.tags}"
 
     docker.withRegistry("https://${args.host}", "${args.auth_id}") {
-
-        // def img = docker.build("${args.acct}/${args.repo}", args.dockerfile)
-        //def img = docker.image("${args.acct}/${args.repo}")
         sh "docker build --build-arg VCS_REF=${env.GIT_SHA} --build-arg BUILD_DATE=`date -u +'%Y-%m-%dT%H:%M:%SZ'` -t ${args.acct}/${args.repo} ${args.dockerfile}"
+
         def img = docker.image("${args.acct}/${args.repo}")
 
         for (int i = 0; i < args.tags.size(); i++) {
             img.push(args.tags.get(i))
-            // sh "docker tag ${args.acct}/${args.repo} ${args.host}/${args.acct}/${args.repo}:${args.tags.get(i)}"
-            // sh "docker push ${args.host}/${args.acct}/${args.repo}:${args.tags.get(i)}"
         }
-
         return img.id
     }
 }
