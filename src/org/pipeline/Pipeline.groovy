@@ -80,14 +80,6 @@ def gitEnvVars() {
     println "env.GIT_SHA => ${env.GIT_SHA}"
     println "env.GIT_REMOTE_URL => ${env.GIT_REMOTE_URL}"
 
-    // sh 'git config --get remote.origin.url> git_remote_origin_url.txt'
-    //
-    // try {
-    //     env.GIT_REMOTE_URL = readFile('git_remote_origin_url.txt').trim()
-    // } catch (e) {
-    //     error "${e}"
-    // }
-    // println "env.GIT_REMOTE_URL => ${env.GIT_REMOTE_URL}"
 }
 
 // Build And Publish Docker Container
