@@ -73,7 +73,7 @@ def gitEnvVars() {
 
     // sh 'git rev-parse HEAD > git_commit_id.txt'
     env.GIT_COMMIT_ID = sh(returnStdout: true, script: "git log -n 1 --pretty=format:'%H'").trim()
-    env.GIT_REMOTE_URL = sh(returnStdout: true, script: "git config --get remote.origin.url").trim()
+    // env.GIT_REMOTE_URL = sh(returnStdout: true, script: "git config --get remote.origin.url").trim()
     env.GIT_SHA = env.GIT_COMMIT_ID.substring(0, 7)
 
     // try {
@@ -85,16 +85,15 @@ def gitEnvVars() {
     // }
     println "env.GIT_COMMIT_ID => ${env.GIT_COMMIT_ID}"
     println "env.GIT_SHA => ${env.GIT_SHA}"
-    println "env.GIT_REMOTE_URL => ${env.GIT_REMOTE_URL}"
 
-    // sh 'git config --get remote.origin.url> git_remote_origin_url.txt'
-    //
-    // try {
-    //     env.GIT_REMOTE_URL = readFile('git_remote_origin_url.txt').trim()
-    // } catch (e) {
-    //     error "${e}"
-    // }
-    // println "env.GIT_REMOTE_URL => ${env.GIT_REMOTE_URL}"
+    sh 'git config --get remote.origin.url> git_remote_origin_url.txt'
+
+    try {
+        env.GIT_REMOTE_URL = readFile('git_remote_origin_url.txt').trim()
+    } catch (e) {
+        error "${e}"
+    }
+    println "env.GIT_REMOTE_URL => ${env.GIT_REMOTE_URL}"
 }
 
 // Build And Publish Docker Container
