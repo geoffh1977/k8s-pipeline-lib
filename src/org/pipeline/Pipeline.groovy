@@ -69,9 +69,7 @@ def helmTest(Map args) {
 // Set Git Environment Variables
 def gitEnvVars() {
 
-    // Don't Remove This SH - It Stops Connection Close Issues Apparently
-    sh "echo Setting Git Environment Variables"
-    // println "Setting Git Environment Variables"
+    println "Setting Git Environment Variables"
 
     // sh 'git rev-parse HEAD > git_commit_id.txt'
     env.GIT_COMMIT_ID = sh(returnStdout: true, script: "git log -n 1 --pretty=format:'%H'").trim()
@@ -80,6 +78,7 @@ def gitEnvVars() {
 
     println "env.GIT_COMMIT_ID => ${env.GIT_COMMIT_ID}"
     println "env.GIT_SHA => ${env.GIT_SHA}"
+    println "env.GIT_REMOTE_URL => ${env.GIT_REMOTE_URL}"
 
     // sh 'git config --get remote.origin.url> git_remote_origin_url.txt'
     //
@@ -88,7 +87,7 @@ def gitEnvVars() {
     // } catch (e) {
     //     error "${e}"
     // }
-    println "env.GIT_REMOTE_URL => ${env.GIT_REMOTE_URL}"
+    // println "env.GIT_REMOTE_URL => ${env.GIT_REMOTE_URL}"
 }
 
 // Build And Publish Docker Container
