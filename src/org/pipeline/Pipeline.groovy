@@ -71,6 +71,8 @@ def gitEnvVars() {
     // create git envvars
     println "Setting Git Environment Variables"
 
+    sh "echo Test"
+
     // sh 'git rev-parse HEAD > git_commit_id.txt'
     env.GIT_COMMIT_ID = sh(returnStdout: true, script: "git log -n 1 --pretty=format:'%H'").trim()
     // env.GIT_REMOTE_URL = sh(returnStdout: true, script: "git config --get remote.origin.url").trim()
