@@ -1,63 +1,62 @@
 #!/usr/bin/groovy
 package org.pipeline;
 
+// Check KubeCtl Connectivity
 def kubectlTest() {
-    // Test that kubectl can correctly communication with the Kubernetes API
-    println "checking kubectl connnectivity to the API"
+    println "Checking kubectl Connnectivity To The API"
     sh "kubectl get nodes"
-
 }
 
+// Perform Checks Helm Chart Code
 def helmLint(String chart_dir) {
-    // lint helm chart
-    println "running helm lint ${chart_dir}"
+    // Lint Helm Code
+    println "Running Helm Lint Check On ${chart_dir}"
     sh "helm lint ${chart_dir}"
-
 }
 
+// Setup Helm Client And Check Version
 def helmConfig() {
-    //setup helm connectivity to Kubernetes API and Tiller
-    println "initiliazing helm client"
+    println "Initiliazing Helm Client"
     sh "helm init"
-    println "checking client/server version"
+    println "Checking Client/Server Version(s)"
     sh "helm version"
 }
 
-
+// Deploy Helm Chart To The Environment
 def helmDeploy(Map args) {
-    //configure helm client and confirm tiller process is installed
+    // Configure Helm Client And Confirm Tiller Process Is Installed
     helmConfig()
 
     def String namespace
 
-    // If namespace isn't parsed into the function set the namespace to the name
+    // If No Namespace Passed, Just Use The Name
     if (args.namespace == null) {
         namespace = args.name
     } else {
         namespace = args.namespace
     }
 
+    // Dry Run?
     if (args.dry_run) {
-        println "Running dry-run deployment"
-
+        println "Running Dry-Run Test Deployment"
         sh "helm upgrade --dry-run --install ${args.name} ${args.chart_dir} --set imageTag=${args.version_tag},replicas=${args.replicas},cpu=${args.cpu},memory=${args.memory},ingress.hostname=${args.hostname} --namespace=${namespace}"
     } else {
-        println "Running deployment"
-
+        println "Running Deployment"
         // reimplement --wait once it works reliable
         sh "helm upgrade --install ${args.name} ${args.chart_dir} --set imageTag=${args.version_tag},replicas=${args.replicas},cpu=${args.cpu},memory=${args.memory},ingress.hostname=${args.hostname} --namespace=${namespace}"
 
         // sleeping until --wait works reliably
         sleep(20)
 
-        echo "Application ${args.name} successfully deployed. Use helm status ${args.name} to check"
+        // Message For The User About A Status Check
+        echo "Application ${args.name} Successfully Deployed. Use helm status ${args.name} To Check."
     }
 }
 
+// Delete A Helm Application From K8s
 def helmDelete(Map args) {
-        println "Running helm delete ${args.name}"
-
-        sh "helm delete ${args.name}"
+        println "Running Helm Delete On ${args.name}"
+        sh "helm delete --purge ${args.name}"
 }
 
 def helmTest(Map args) {
