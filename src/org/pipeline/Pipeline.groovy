@@ -142,6 +142,15 @@ def getContainerTags(config, Map tags = [:]) {
         println "WARNING: Branch Unavailable From Environment. ${e}"
     }
 
+    // Set Develop Tag
+    try {
+        if (env.BRANCH_NAME == 'develop') {
+            tags << ['develop': 'develop']
+        }
+    } catch (Exception e) {
+        println "WARNING: Branch Unavailable From Environment. ${e}"
+    }
+
     // Only Set Build Tag If None Of The Above Are Available
     if (!tags) {
         try {
